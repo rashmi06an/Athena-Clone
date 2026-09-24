@@ -469,5 +469,78 @@ The interface was completely overhauled to transform the app from a basic utilit
 1. **Frontend Compilation:** Built with Vite in ~98ms with zero bundle warnings.
 2. **DMG Packaging:** Rebuilt with `electron-builder` to generate an updated, ready-to-distribute `dist-electron/Athena-1.0.0-arm64.dmg`.
 
+---
+
+## Step 9 — Advanced Proctoring & Anti-Cheat Suite Implementation (2026-09-24)
+
+### Overview
+To ensure compliance with standardized assessment integrity requirements, Athena was upgraded with an anti-cheat security system spanning the Electron main process, Express backend REST layer, and React frontend.
+
+---
+
+### Key Implementations
+
+#### 1. Fullscreen Lockdown & Instant Backend Activity Flagging
+- **Fullscreen Event Monitoring:** Attached an event listener for `fullscreenchange` within the React renderer.
+- **Interactive Lockdown:** If a candidate exits or minimizes fullscreen during an active exam:
+  - `isExamLocked` state is immediately set to `true`.
+  - All MCQ option selections and answer submissions are disabled.
+  - A modal overlay (`lockdown-overlay`) locks the UI, notifying the candidate that navigation away from fullscreen is a monitored violation.
+  - An automated violation payload is dispatched to the backend:
+    ```javascript
+    flagViolation(sessionId, 'FULLSCREEN_EXIT', 'Candidate exited fullscreen kiosk mode during active assessment')
+    ```
+- **Backend Tracking:** Created the `POST /exam/flag` endpoint in [server.js](file:///Users/rashmianand/Downloads/Athena-Clone2/backend/server.js#L193-L232) which appends timestamped violation records to the session's `violations: []` array in `sessions.json`.
+- **Restoration:** When the candidate clicks *Restore Full Screen & Resume*, fullscreen is re-requested via `document.documentElement.requestFullscreen()`, a `FULLSCREEN_RESTORED` event is logged, and the exam interface unlocks.
+
+#### 2. Background Application Auditing on Startup
+- **Native Process Inspection:** In [app.js](file:///Users/rashmianand/Downloads/Athena-Clone2/frontend/app/app.js#L268-L309), implemented the `get-running-apps` IPC handler using macOS AppleScript (`System Events` process list).
+- **Prohibited Process Filtering:** Filters out legitimate system processes (`Finder`, `Dock`, `Electron`, `Athena`, `System Events`, `loginwindow`) and identifies external apps (e.g. Chrome, Safari, Slack, Discord, WhatsApp, Zoom, Terminal).
+- **Mandatory Closure Guard:**
+  - On app launch and on the Setup screen, background processes are automatically scanned.
+  - If unauthorized applications are detected, an alert prompt (`modal-backdrop`) lists each prohibited app and prevents proceeding to registration until the apps are closed.
+  - Candidates can click *Re-check Applications* to verify their process tree in real time.
+
+#### 3. Low-Level Keyboard Shortcut Interception
+- **Electron Pipeline Filtering:** In [app.js](file:///Users/rashmianand/Downloads/Athena-Clone2/frontend/app/app.js#L174-L215), attached a `before-input-event` listener on `webContents` to intercept keystrokes before they reach the OS or renderer:
+  - **Quit / Close:** `Cmd + Q`, `Cmd + W`
+  - **Reload / Refresh:** `Cmd + R`, `Ctrl + R`, `F5`
+  - **Developer Tools:** `Cmd + Option + I`, `Ctrl + Shift + I`, `F12` (blocked in production)
+  - **Clipboard & Text Manipulation:** `Cmd + C`, `Cmd + V`, `Cmd + X`, `Cmd + A`, `Cmd + P`, `Cmd + S`, `Cmd + U`
+  - **macOS Screenshot Shortcuts:** `Cmd + Shift + 3`, `Cmd + Shift + 4`, `Cmd + Shift + 5`
+  - **Escape Key:** Blocked during active examinations to prevent accidental full-screen dismissal.
+- **Renderer-level Guards:** Added capturing `keydown` listener and disabled the right-click `contextmenu` to block element inspection.
+
+#### 4. Exam Duration Limit & Automatic App Reload
+- Configured a maximum examination duration limit (`MAX_EXAM_DURATION_SECONDS = 900` / 15 minutes).
+- When the high-precision IPC timer tick exceeds the maximum allowed time:
+  - The exam automatically concludes and dispatches a final `MAX_DURATION_EXCEEDED` violation to the backend.
+  - An alert dialog informs the candidate: *"Allotted examination duration limit has been reached. Concluding session and reloading application."*
+  - The application calls `window.athena.reloadApp()` (invoking `electronWindow.reload()` via IPC) to cleanly conclude the testing session.
+
+#### 5. Dual Proctoring Streams (Camera + Desktop Screen Share)
+- Upgraded the security calibration screen with a **Dual Proctoring Feed**:
+  1. **Optical Camera Stream:** Displays live facial presence verification.
+  2. **Desktop Screen Share Stream:** Displays live desktop capture stream acquired via `desktopCapturer` and `navigator.mediaDevices.getUserMedia`.
+- Configured dual authorization checkpoints in the Setup UI.
+- Background intervals in Electron continue capturing high-resolution snapshots of both camera and screen every 5 seconds, archiving them directly into `~/Library/Application Support/athena-clone/snapshots/`.
+
+#### 6. Comprehensive Project Documentation (`README.md`)
+- Created a top-tier [README.md](file:///Users/rashmianand/Downloads/Athena-Clone2/README.md) in the project root containing:
+  - Complete architecture overview and component diagram.
+  - Detailed security and proctoring feature descriptions.
+  - Minimal chic design system palette documentation.
+  - Step-by-step instructions for running the DMG, direct binary execution, and development mode.
+  - Complete REST API endpoint reference table.
+  - Instructions for future rebuilds.
+
+---
+
+### Verification & Testing
+- **Frontend Build:** Verified with `npm run build` in `frontend/` (compiled in 84ms, 0 errors).
+- **DMG Package:** Assembled standalone executable DMG via `electron-builder` at [dist-electron/Athena-1.0.0-arm64.dmg](file:///Users/rashmianand/Downloads/Athena-Clone2/dist-electron/Athena-1.0.0-arm64.dmg) (~129 MB).
+- **Integrity Validation:** Tested process detection via AppleScript, simulated fullscreen exit violation logging, and confirmed keyboard shortcut interception.
+
+
 
 
