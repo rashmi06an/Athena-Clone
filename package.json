@@ -1,0 +1,75 @@
+{
+  "name": "athena-clone",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Athena Exam Application",
+  "main": "frontend/app/app.js",
+  "type": "module",
+  "scripts": {
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:frontend && electron-builder --mac dmg",
+    "dist": "npm run build",
+    "pack": "npm run build:frontend && electron-builder --mac dir",
+    "start": "electron frontend/app/app.js",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install"
+  },
+  "build": {
+    "appId": "in.mayank.athenaclone",
+    "productName": "Athena",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "mac": {
+      "category": "public.app-category.education",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "identity": null,
+      "icon": "build/icon.png",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "dmg": {
+      "title": "${productName} ${version}",
+      "artifactName": "Athena-${version}-${arch}.${ext}",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 600,
+        "height": 400
+      }
+    },
+    "files": [
+      "frontend/dist/**/*",
+      "frontend/app/**/*",
+      "backend/**/*",
+      "!backend/node_modules/**/test/**",
+      "!backend/node_modules/**/tests/**",
+      "!backend/node_modules/**/.bin/**",
+      "!**/*.map"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "backend/**/*"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^44.4.5",
+    "electron-builder": "^26.15.3"
+  }
+}
