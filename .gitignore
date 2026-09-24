@@ -1,0 +1,13 @@
+node_modules/
+**/node_modules/
+
+dist/
+dist-electron/
+
+.env
+.env.*
+
+.DS_Store
+
+*.dmg
+*.blockmap
