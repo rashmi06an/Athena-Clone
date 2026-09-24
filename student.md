@@ -404,4 +404,70 @@ from the root directory (`/Users/rashmianand/Downloads/Athena-Clone2`). This wil
 | `dist-electron/` | **Generated** | Contains the built `Athena-1.0.0-arm64.dmg` installer and `Athena.app` bundle |
 | `student.md` | Updated | Step-by-step documentation of all packaging decisions, fixes, and execution guides |
 
+---
+
+## Step 8 — Editorial Redesign: Minimal & Chic Luxury UI (Black, Grey, White & Beige) (2026-09-24)
+
+### Aesthetic Concept & Palette
+The interface was completely overhauled to transform the app from a basic utility into an editorial-grade, minimalist luxury software experience inspired by high-end design aesthetics:
+
+- **Warm Beige / Limestone Canvas (`#F6F4EE`):** Warm parchment background with subtle radial depth gradients.
+- **Architectural White (`#FFFFFF`):** High-clarity elevated surface cards with soft warm-tone shadows.
+- **Rich Obsidian Matte Black (`#121211`):** High-contrast primary action buttons, active MCQ selections, circular score badges, and logo marks.
+- **Charcoal & Warm Grey (`#5C5B55` / `#8C8A82`):** Refined secondary typography, subtle micro-labels, and metadata badges.
+- **Sand & Limestone Borders (`#EAE6DC` / `#D5CFC1`):** Delicate architectural borders and dividers.
+
+### Typography System
+- **Headers & Display:** `Cormorant Garamond` — Classical, editorial luxury serif for question titles, evaluation numerals, and brand logomark.
+- **Body & Controls:** `Plus Jakarta Sans` — Modern, ultra-clean geometric sans for legibility and effortless interaction.
+- **Timers & Reference Tokens:** `SF Mono` / monospace — Clean numerical tracking for seconds elapsed and session identifiers.
+
+---
+
+### Component & Screen Enhancements
+
+#### 1. Persistent Chic Header Bar
+- **Brand Identity:** Minimalist obsidian square mark `[A]` paired with spaced serif logotype `ATHENA · EXAMINATION SUITE`.
+- **Phase Tracker:** Centered beige pill dynamically indicating `Security Setup`, `Candidate Identification`, `Assessment in Progress`, or `Evaluation Summary`.
+- **System Telemetry:** Live backend status pill with pulsing indicator (`System Active` / `Connecting` / `Server Offline`).
+- **Proctoring Timer:** Monospace digital clock pill displaying live elapsed exam seconds.
+
+#### 2. Security Setup Screen (`SCREEN.SETUP`)
+- **Optical Stream Viewfinder:** Sleek live camera preview card with subtle vignette, glowing `● LIVE FEED` badge, and calibration status toggle.
+- **Two-Column Integrity Checkpoints:** Interactive verification cards for:
+  1. *Facial Proctoring* (Camera authorization)
+  2. *Environment Lockdown* (Full-screen kiosk activation)
+  3. *Core Backend Bridge* (Express REST API synchronization)
+- **Protocol Action Bar:**
+  - *Continue to Registration →* button in rich matte obsidian.
+  - *Show Native Rules* (Electron IPC modal).
+  - *Show Chromium Rules* (Native browser dialog).
+  - *View Protocol Overview* (In-app chic blurred-glass modal).
+
+#### 3. Candidate Registration (`SCREEN.REGISTER`)
+- Centered card with generous whitespace and clear hierarchy.
+- Refined input fields with warm limestone backgrounds, transitioning on focus to crisp white with subtle charcoal focus rings.
+- Candidate Name and Roll/Student ID validation.
+
+#### 4. Assessment Interface (`SCREEN.EXAM`)
+- **Question Stepper Bar:** Top pill navigation displaying item numbers (answered vs current item).
+- **Question Statement:** Rendered in large, high-legibility Cormorant Garamond serif typography.
+- **MCQ Option Rows:**
+  - Clean cards with minimalist letter badge (`A`, `B`, `C`, `D`).
+  - Active selection in rich obsidian black with crisp white text.
+  - Answer evaluation banners featuring refined sage-green (correct) and terracotta (incorrect) cues.
+
+#### 5. Evaluation Summary (`SCREEN.RESULT`)
+- **Circular Proficiency Dial:** High-contrast obsidian & sand circular percentage gauge.
+- **Three-Pillar Metrics Grid:** Individual limestone cards for *Correct*, *Incorrect*, and *Total Attempted*.
+- **Candidate Metadata Strip:** Displays student name and unique session ID.
+- **Re-test Capability:** One-click button to restart or initiate a fresh assessment without restarting the app.
+
+---
+
+### Verification & DMG Rebuild
+1. **Frontend Compilation:** Built with Vite in ~98ms with zero bundle warnings.
+2. **DMG Packaging:** Rebuilt with `electron-builder` to generate an updated, ready-to-distribute `dist-electron/Athena-1.0.0-arm64.dmg`.
+
+
 

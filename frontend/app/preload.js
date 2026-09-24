@@ -57,4 +57,12 @@ contextBridge.exposeInMainWorld("athena", {
     storeScreenSnapImageOnDisk: (data) => {
         ipcRenderer.invoke('store-screen-snap-image-on-disk', data);
     },
+
+    // Background apps & application control
+    getRunningApps: () => {
+        return ipcRenderer.invoke('get-running-apps');
+    },
+    reloadApp: () => {
+        ipcRenderer.send('reload-app');
+    },
 })

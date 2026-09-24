@@ -109,3 +109,16 @@ export async function getQuestion(id) {
 export async function submitAnswer(sessionId, questionId, selectedAnswer) {
   return request('POST', '/exam/answer', { sessionId, questionId, selectedAnswer });
 }
+
+// ─── Violations & Anti-Cheat Flagging ────────────────────────────────────────
+
+/**
+ * Flag an anti-cheat violation event to the backend.
+ * @param {string} sessionId
+ * @param {string} type - e.g. 'FULLSCREEN_EXIT'
+ * @param {string} details
+ */
+export async function flagViolation(sessionId, type, details) {
+  return request('POST', '/exam/flag', { sessionId, type, details });
+}
+

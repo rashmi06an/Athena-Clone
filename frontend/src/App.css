@@ -945,3 +945,113 @@
     transform: translateY(0);
   }
 }
+
+/* ── Dual Preview Row (Camera + Screen Share) ────────────────── */
+
+.dual-preview-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.half-preview {
+  flex: 1;
+  height: 180px !important;
+}
+
+/* ── Background Apps Alert & Pill Lists ──────────────────────── */
+
+.security-alert-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 20px;
+  background: #FAF0E4;
+  border: 1px solid #E6D2B5;
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+  color: #5C3D10;
+  font-size: 13px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.prohibited-apps-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.prohibited-app-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg-surface-warm);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+/* ── Fullscreen Lockdown Modal Overlay ───────────────────────── */
+
+.lockdown-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(18, 18, 17, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.lockdown-card {
+  max-width: 480px;
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xl);
+  padding: 36px 32px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+}
+
+.lockdown-icon {
+  font-size: 42px;
+  margin-bottom: 14px;
+}
+
+.lockdown-title {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  color: #7E2424;
+  margin-bottom: 12px;
+}
+
+.lockdown-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* ── Violation Pill ──────────────────────────────────────────── */
+
+.violation-pill {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  background: #F8EAEA;
+  color: #8C2B2B;
+  border: 1px solid #DFC0C0;
+  border-radius: var(--radius-pill);
+  animation: fadeIn 0.2s ease-out;
+}

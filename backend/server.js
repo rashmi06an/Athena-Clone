@@ -87,6 +87,7 @@ app.post("/exam/start", (req, res) => {
     correct: 0,
     wrong: 0,
     answers: [],
+    violations: [],
   };
 
   sessions.push(session);
@@ -186,6 +187,46 @@ app.post("/exam/answer", (req, res) => {
     attempted: session.attempted,
     correct: session.correct,
     wrong: session.wrong,
+  });
+});
+
+// Flag suspicious or proctoring violations (e.g. fullscreen exit)
+app.post("/exam/flag", (req, res) => {
+  const { sessionId, type, details } = req.body;
+
+  if (!sessionId || !type) {
+    return res.status(400).json({
+      message: "sessionId and type are required",
+    });
+  }
+
+  const sessions = readSessions();
+  const session = sessions.find((item) => item.sessionId === sessionId);
+
+  if (!session) {
+    return res.status(404).json({ message: "Session not found" });
+  }
+
+  if (!session.violations) {
+    session.violations = [];
+  }
+
+  const violationRecord = {
+    id: `v-${Date.now()}`,
+    type,
+    details: details || "Proctoring violation event",
+    timestamp: new Date().toISOString(),
+  };
+
+  session.violations.push(violationRecord);
+  saveSessions(sessions);
+
+  console.log(`[Security Flag] Session ${sessionId}: ${type} - ${details || ""}`);
+
+  res.json({
+    message: "Violation successfully flagged",
+    violationCount: session.violations.length,
+    latestViolation: violationRecord,
   });
 });
 

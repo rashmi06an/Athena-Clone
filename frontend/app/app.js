@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain, dialog, desktopCapturer } from "electron";
-import { fork } from "child_process";
+import { fork, execFile } from "child_process";
 import http from "http";
 import path from "path";
 import fs from "fs";
@@ -172,6 +172,49 @@ async function createWindow() {
         },
     });
 
+    // ── Enforce Keyboard Anti-Cheating Restrictions ──
+    electronWindow.webContents.on("before-input-event", (event, input) => {
+        const isMac = process.platform === "darwin";
+        const cmdOrCtrl = isMac ? input.meta : input.control;
+        const key = input.key ? input.key.toLowerCase() : "";
+
+        // Block Quit / Close: Cmd+Q, Cmd+W
+        if (cmdOrCtrl && (key === "q" || key === "w")) {
+            event.preventDefault();
+        }
+
+        // Block Refresh / Reload: Cmd+R, Ctrl+R, F5
+        if ((cmdOrCtrl && key === "r") || input.key === "F5") {
+            event.preventDefault();
+        }
+
+        // Block DevTools shortcuts: Cmd+Alt+I, Ctrl+Shift+I, F12
+        if (
+            input.key === "F12" ||
+            (cmdOrCtrl && input.alt && key === "i") ||
+            (cmdOrCtrl && input.shift && key === "i")
+        ) {
+            if (app.isPackaged) {
+                event.preventDefault();
+            }
+        }
+
+        // Block standard clipboard & text manipulation in exam: Cmd+C, Cmd+V, Cmd+X, Cmd+A, Cmd+P, Cmd+S, Cmd+U
+        if (cmdOrCtrl && ["c", "v", "x", "a", "p", "s", "u"].includes(key)) {
+            event.preventDefault();
+        }
+
+        // Block screenshot shortcuts on macOS: Cmd+Shift+3, Cmd+Shift+4, Cmd+Shift+5
+        if (input.meta && input.shift && ["3", "4", "5"].includes(input.key)) {
+            event.preventDefault();
+        }
+
+        // Block Escape key (prevent casual fullscreen exit)
+        if (input.key === "Escape") {
+            event.preventDefault();
+        }
+    });
+
     const distIndexPath = path.join(import.meta.dirname, "../dist/index.html");
 
     if (!app.isPackaged) {
@@ -264,6 +307,52 @@ ipcMain.on("show-rules", () => {
                 "4. Do not use external assistance.\n" +
                 "5. Click Finish Exam when done.",
         });
+    }
+});
+
+// ─── IPC: Detect Running Background Applications (macOS) ──────────────────
+ipcMain.handle("get-running-apps", async () => {
+    if (process.platform !== "darwin") {
+        return [];
+    }
+    return new Promise((resolve) => {
+        execFile(
+            "osascript",
+            [
+                "-e",
+                'tell application "System Events" to get name of every process whose background only is false',
+            ],
+            (err, stdout) => {
+                if (err || !stdout) {
+                    return resolve([]);
+                }
+                const apps = stdout
+                    .split(",")
+                    .map((a) => a.trim())
+                    .filter(Boolean);
+
+                const safeList = new Set([
+                    "finder",
+                    "electron",
+                    "athena",
+                    "athena exam",
+                    "system events",
+                    "loginwindow",
+                    "dock",
+                ]);
+
+                const prohibited = apps.filter((app) => !safeList.has(app.toLowerCase()));
+                resolve(prohibited);
+            }
+        );
+    });
+});
+
+// ─── IPC: Reload Application Window ───────────────────────────────────────
+ipcMain.on("reload-app", () => {
+    if (electronWindow && !electronWindow.isDestroyed()) {
+        console.log("[Electron] Reloading application window per proctoring policy...");
+        electronWindow.reload();
     }
 });
 
